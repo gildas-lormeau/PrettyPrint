@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html>
+<head>
+<title>PrettyPrint options</title>
+<script type="text/javascript" src="options.js"></script>
+<style type="text/css">
+body {
+	background-color: #eee;
+}
+
+body > div {
+	margin-left: auto;
+	margin-right: auto;
+	width: 350px;
+	
+	background-color: #fff;
+	font-family: sans-serif;
+	margin-bottom: 10px;
+	border-width: 1px;
+	border-style: solid;
+	border-radius: 8px;
+	padding-left: 10px;
+	padding-right: 10px;
+	padding-bottom: 10px;
+	text-align: justify;
+	-webkit-box-shadow: #888 5px 5px 5px;
+}
+
+body > div > div {
+	margin-top: 10px;
+	height: 25px;
+}
+
+#icon {
+	width: 1em;
+	padding-right: .3em;
+}
+
+input {
+	float: right;
+}
+input[type="text"] {
+	width: 3em;
+}
+button {
+	float: right;
+}
+</style>
+</head>
+<body onload="load()">
+<div>
+<h2><img alt="icon" id="icon" src="icon_48.png"/>PrettyPrint</h2>
+<hr>
+<h3>General options</h3>
+<div>
+<label for="use_contextmenu">use context menu to pretty print</label>
+<input type="checkbox" id="use_contextmenu">
+</div>
+<hr>
+<h3>JS formatter options</h3>
+<div>
+<label for="auto_indentation">auto indentation</label>
+<input type="checkbox" id="auto_indentation">
+</div>
+<div>
+<label for="braces_on_own_line">braces on own line</label>
+<input type="checkbox" id="braces_on_own_line">
+</div>
+<div>
+<label for="indent_size">indentation size</label>
+<input type="text" id="indent_size">
+</div>
+<div>
+<label for="indent_char">indentation char</label>
+<input type="text" id="indent_char">
+</div>
+<div>
+<label for="preserve_newlines">preserve new lines</label>
+<input type="checkbox" id="preserve_newlines">
+</div>
+<div>
+<label for="space_after_anon_function">space after a non function</label>
+<input type="checkbox" id="space_after_anon_function">
+</div>
+<div>
+<label for="keep_array_indentation">keep array indentation</label>
+<input type="checkbox" id="keep_array_indentation">
+</div>
+<hr>
+<h3>CSS formatter options</h3>
+<label for="auto_indentation">auto indentation</label>
+<input type="checkbox" id="css_auto_indentation">
+<div>
+<label for="indent_size">indentation size</label>
+<input type="text" id="css_indent_size">
+</div>
+<div>
+<label for="indent_char">indentation char</label>
+<input type="text" id="css_indent_char">
+</div>
+<br>
+<div>
+<button id="save">Save</button>
+<button id="reset">Reset</button>
+</div>
+</div>
+</body>
+</html>
