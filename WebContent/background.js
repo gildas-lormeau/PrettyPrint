@@ -29,9 +29,10 @@ function getOptions() {
 		preserve_newlines : true,
 		space_after_anon_function : false,
 		keep_array_indentation : false,
+		css_auto_indentation : true,
 		css_indent_size : 4,
 		css_indent_char : " ",
-		css_auto_indentation : false,
+		css_braces_on_own_line : false,
 		use_contextmenu : false
 	};
 }
@@ -57,33 +58,47 @@ function refreshContextMenu(options) {
 		menuId = chrome.contextMenus.remove(menuId);
 }
 
-function executeScripts(tabId, scripts, callback, index) {
-	if (!index)
-		index = 0;
-	if (index < scripts.length)
-		chrome.tabs.executeScript(tabId, {
-			file : scripts[index].file,
-			code : scripts[index].code,
-			allFrames : true
-		}, function() {
-			executeScripts(tabId, scripts, callback, index + 1);
-		});
-	else if (callback)
-		callback();
-}
-
 chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+	var workerBeautifyJS, workerBeautifyCSS, workerWebInspector;
 	if (request.getOptions) {
 		sendResponse(getOptions());
-		executeScripts(request.id, [ {
-			file : "WebInspector.js"
-		}, {
-			file : "beautify.js"
-		}, {
-			file : "cssParser.js"
-		}, {
-			file : "content.js"
-		} ]);
+		if (sender.tab.url.indexOf("file:") != 0)
+			chrome.tabs.executeScript(sender.tab.id, {
+				file : "content.js"
+			});
+	}
+	if (request.beautifyJS) {
+		workerBeautifyJS = new Worker("worker-beautify.js");
+		workerBeautifyJS.addEventListener("message", function(text) {
+			sendResponse(text);
+			workerBeautifyJS.terminate();
+		}, false);
+		workerBeautifyJS.postMessage({
+			text : request.text,
+			options : getOptions()
+		});
+	}
+	if (request.beautifyCSS) {
+		workerBeautifyCSS = new Worker("worker-cssbeautify.js");
+		workerBeautifyCSS.addEventListener("message", function(data) {
+			sendResponse(data);
+			workerBeautifyCSS.terminate();
+		}, false);
+		workerBeautifyCSS.postMessage({
+			text : request.text,
+			options : getOptions()
+		});
+	}
+	if (request.syntaxHighlight) {
+		workerWebInspector = new Worker("worker-WebInspector.js");
+		workerWebInspector.addEventListener("message", function(data) {
+			sendResponse(data);
+			workerWebInspector.terminate();
+		}, false);
+		workerWebInspector.postMessage({
+			text : request.text,
+			type : request.type
+		});
 	}
 });
 

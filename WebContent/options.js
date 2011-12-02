@@ -18,7 +18,7 @@
  *   along with PrettyPrint.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-var options, use_contextmenu, auto_indentation, css_auto_indentation, css_indent_char, css_indent_size, braces_on_own_line, indent_size, indent_char, preserve_newlines, space_after_anon_function, keep_array_indentation, bgPage = chrome.extension.getBackgroundPage();
+var options, use_contextmenu, auto_indentation, css_auto_indentation, css_indent_char, css_indent_size, braces_on_own_line, indent_size, indent_char, preserve_newlines, space_after_anon_function, keep_array_indentation, css_braces_on_own_line, bgPage = chrome.extension.getBackgroundPage();
 
 function initForm() {
 	options = bgPage.getOptions();
@@ -33,6 +33,7 @@ function initForm() {
 	css_auto_indentation.checked = options.css_auto_indentation;
 	css_indent_char.value = options.css_indent_char;
 	css_indent_size.value = options.css_indent_size;
+	css_braces_on_own_line.checked = options.css_braces_on_own_line;
 }
 
 function load() {
@@ -47,6 +48,7 @@ function load() {
 	css_auto_indentation = document.getElementById("css_auto_indentation");
 	css_indent_char = document.getElementById("css_indent_char");
 	css_indent_size = document.getElementById("css_indent_size");
+	css_braces_on_own_line = document.getElementById("css_braces_on_own_line");
 	initForm();
 
 	document.getElementById("reset").onclick = function() {
@@ -66,6 +68,7 @@ function load() {
 		options.css_auto_indentation = css_auto_indentation.checked;
 		options.css_indent_char = css_indent_char.value;
 		options.css_indent_size = css_indent_size.value;
+		options.css_braces_on_own_line = css_braces_on_own_line.checked;
 		bgPage.setOptions(options);
 	};
 };
