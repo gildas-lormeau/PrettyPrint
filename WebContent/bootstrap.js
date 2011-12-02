@@ -19,6 +19,7 @@
  */
 
 var options;
+
 if (document.location.pathname.substr(-4) == ".css" || document.location.pathname.substr(-3) == ".js") {
 	chrome.extension.sendRequest({
 		getOptions : true
