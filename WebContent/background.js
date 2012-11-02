@@ -51,26 +51,32 @@ function refreshContextMenu(options) {
 		menuId = chrome.contextMenus.create({
 			title : "pretty print",
 			onclick : function(info, tab) {
-				chrome.tabs.sendRequest(tab.id, getOptions());
+				chrome.tabs.sendMessage(tab.id, {
+					options : getOptions()
+				});
 			}
 		});
 	if (!options.use_contextmenu && menuId)
 		menuId = chrome.contextMenus.remove(menuId);
 }
 
-chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
+chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 	var workerBeautifyJS, workerBeautifyCSS, workerWebInspector;
-	if (request.getOptions) {
-		sendResponse(getOptions());
+	if (request.getOptions) {		
+		chrome.tabs.sendMessage(sender.tab.id, {
+			options : getOptions()
+		});
 		if (sender.tab.url.indexOf("file:") != 0)
 			chrome.tabs.executeScript(sender.tab.id, {
 				file : "content.js"
-			});
+			});		
 	}
 	if (request.beautifyJS) {
 		workerBeautifyJS = new Worker("worker-beautify.js");
-		workerBeautifyJS.addEventListener("message", function(text) {
-			sendResponse(text);
+		workerBeautifyJS.addEventListener("message", function(event) {
+			chrome.tabs.sendMessage(sender.tab.id, {
+				content : event.data
+			});
 			workerBeautifyJS.terminate();
 		}, false);
 		workerBeautifyJS.postMessage({
@@ -80,8 +86,10 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 	if (request.beautifyCSS) {
 		workerBeautifyCSS = new Worker("worker-cssbeautify.js");
-		workerBeautifyCSS.addEventListener("message", function(data) {
-			sendResponse(data);
+		workerBeautifyCSS.addEventListener("message", function(event) {
+			chrome.tabs.sendMessage(sender.tab.id, {
+				content : event.data
+			});
 			workerBeautifyCSS.terminate();
 		}, false);
 		workerBeautifyCSS.postMessage({
@@ -91,8 +99,11 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 	}
 	if (request.syntaxHighlight) {
 		workerWebInspector = new Worker("worker-WebInspector.js");
-		workerWebInspector.addEventListener("message", function(data) {
-			sendResponse(data);
+		workerWebInspector.addEventListener("message", function(event) {
+			chrome.tabs.sendMessage(sender.tab.id, {
+				content : event.data.text,
+				linesLength: event.data.linesLength
+			});
 			workerWebInspector.terminate();
 		}, false);
 		workerWebInspector.postMessage({
@@ -100,6 +111,7 @@ chrome.extension.onRequest.addListener(function(request, sender, sendResponse) {
 			type : request.type
 		});
 	}
+	return true;
 });
 
 refreshContextMenu(getOptions());

@@ -21,11 +21,14 @@
 var options;
 
 if (document.location.pathname.substr(-4) == ".css" || document.location.pathname.substr(-3) == ".js") {
-	chrome.extension.sendRequest({
-		getOptions : true
-	}, function(response) {
-		options = response;
-		if (document.location.protocol == "file:")
-			process();
+	chrome.extension.onMessage.addListener(function(response) {
+		if (response.options) {
+			options = response.options;
+			if (document.location.protocol == "file:")
+				process();
+		}
 	});
+	chrome.extension.sendMessage({
+		getOptions : true
+	});	
 }

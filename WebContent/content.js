@@ -21,31 +21,40 @@
 var cssContent = '.webkit-css-comment { color: rgb(0, 116, 0); } .webkit-css-url, .webkit-css-color, .webkit-css-string, .webkit-css-keyword {  color: rgb(7, 144, 154); } .webkit-css-number {  color: rgb(50, 0, 255); } .webkit-css-property, .webkit-css-at-rule {  color: rgb(200, 0, 0); } .webkit-css-selector {  color: black; } .webkit-css-important {  color: rgb(200, 0, 180); } .webkit-javascript-comment {  color: rgb(0, 116, 0); } .webkit-javascript-keyword {  color: rgb(170, 13, 145); } .webkit-javascript-number {  color: rgb(28, 0, 207); } .webkit-javascript-string, .webkit-javascript-regexp {  color: rgb(196, 26, 22); } .webkit-javascript-ident {  color: black; } .text-editor-lines {  border: 0;  -webkit-border-horizontal-spacing: 0;  -webkit-border-vertical-spacing: 0;  -webkit-user-select: text; } .webkit-line-number {  color: rgb(128, 128, 128);  background-color: rgb(240, 240, 240);  border-right: 1px solid rgb(187, 187, 187);  text-align: right;  word-break: normal;  -webkit-user-select: none; padding-right: 4px; padding-left: 6px; } .webkit-line-number-inner {  margin-right: 4px; } .webkit-line-number-outer {  margin-right: -4px;  margin-left: -4px;  border-color: transparent;  border-style: solid;  border-width: 0 0 0px 2px;  vertical-align: top; } body { font-family: monospace; white-space: pre; margin: 0px; } .viewer-line-numbers { float: left; -webkit-user-select: none; } .viewer-content { display: inline-table; padding-left: 5px; }';
 
 function beautifyJS(text, callback) {
-	chrome.extension.sendRequest({
+	function onMessage(response) {
+		chrome.extension.onMessage.removeListener(onMessage);
+		callback(response.content);
+	}
+	chrome.extension.onMessage.addListener(onMessage);
+	chrome.extension.sendMessage({
 		beautifyJS : true,
 		text : text
-	}, function(event) {
-		callback(event.data);
 	});
 }
 
 function beautifyCSS(text, callback) {
-	chrome.extension.sendRequest({
+	function onMessage(response) {
+		chrome.extension.onMessage.removeListener(onMessage);
+		callback(response.content);
+	}
+	chrome.extension.onMessage.addListener(onMessage);
+	chrome.extension.sendMessage({
 		beautifyCSS : true,
 		text : text
-	}, function(event) {
-		callback(event.data);
 	});
 }
 
 function displayHighlightedText(text, type, node) {
-	chrome.extension.sendRequest({
+	function onMessage(response) {
+		chrome.extension.onMessage.removeListener(onMessage);
+		node.innerHTML = response.content;
+		document.body.appendChild(createViewer(node, response.linesLength));
+	}
+	chrome.extension.onMessage.addListener(onMessage);
+	chrome.extension.sendMessage({
 		syntaxHighlight : true,
 		type : type,
 		text : text
-	}, function(event) {
-		node.innerHTML = event.data.text;
-		document.body.appendChild(createViewer(node, event.data.linesLength));
 	});
 }
 
@@ -131,6 +140,5 @@ function process() {
 }
 
 chrome.extension.onRequest.addListener(process);
-
 if (document.location.protocol != "file:" && !options.use_contextmenu)
 	process();
