@@ -140,5 +140,5 @@ function process() {
 }
 
 chrome.extension.onRequest.addListener(process);
-if (document.location.protocol != "file:" && !options.use_contextmenu)
+if (document.location.protocol != "file:")
 	process();

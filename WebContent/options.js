@@ -72,3 +72,5 @@ function load() {
 		bgPage.setOptions(options);
 	};
 };
+
+addEventListener("load", load, false);

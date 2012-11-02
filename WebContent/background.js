@@ -51,9 +51,10 @@ function refreshContextMenu(options) {
 		menuId = chrome.contextMenus.create({
 			title : "pretty print",
 			onclick : function(info, tab) {
-				chrome.tabs.sendMessage(tab.id, {
-					options : getOptions()
-				});
+				if (tab.url.indexOf("file:") != 0)
+					chrome.tabs.executeScript(tab.id, {
+						file : "content.js"
+					});
 			}
 		});
 	if (!options.use_contextmenu && menuId)
@@ -62,14 +63,14 @@ function refreshContextMenu(options) {
 
 chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 	var workerBeautifyJS, workerBeautifyCSS, workerWebInspector;
-	if (request.getOptions) {		
+	if (request.getOptions) {
 		chrome.tabs.sendMessage(sender.tab.id, {
 			options : getOptions()
 		});
-		if (sender.tab.url.indexOf("file:") != 0)
+		if (!getOptions().use_contextmenu && sender.tab.url.indexOf("file:") != 0)
 			chrome.tabs.executeScript(sender.tab.id, {
 				file : "content.js"
-			});		
+			});
 	}
 	if (request.beautifyJS) {
 		workerBeautifyJS = new Worker("worker-beautify.js");
@@ -102,7 +103,7 @@ chrome.extension.onMessage.addListener(function(request, sender, sendResponse) {
 		workerWebInspector.addEventListener("message", function(event) {
 			chrome.tabs.sendMessage(sender.tab.id, {
 				content : event.data.text,
-				linesLength: event.data.linesLength
+				linesLength : event.data.linesLength
 			});
 			workerWebInspector.terminate();
 		}, false);
